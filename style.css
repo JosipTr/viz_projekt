@@ -1,0 +1,36 @@
+body {
+  overflow: hidden;
+  background-color: lightblue;
+}
+
+#content {
+  display: flex;
+  flex-direction: row;
+}
+
+#map {
+  order: 1;
+}
+
+#charts {
+  order: 2;
+}
+
+.country {
+  stroke: gray;
+  stroke-width: 0.4;
+  stroke-opacity: 1;
+}
+
+.country:hover {
+  stroke: red;
+  opacity: 60%;
+}
+
+.tooltip {
+  position: absolute;
+  background-color: white;
+  border: 1px solid gray;
+  padding: 8px;
+  pointer-events: none;
+}
