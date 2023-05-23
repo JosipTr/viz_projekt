@@ -1,12 +1,12 @@
-var width = 960;
-var height = 780;
+var width = window.innerWidth - 40;
+var height = window.innerHeight - 40;
 
 var scaleWidth = 400;
 var scaleHeight = 30;
 
 var svg = d3.select("#content").append("svg").attr("width", width).attr("height", height)
 
-var projection = d3.geoMercator().center([0, 60]).scale(160);
+var projection = d3.geoMercator().center([0, 40]).scale(220).translate([width / 2, height / 2]);
 
 var path = d3.geoPath(projection);
 
@@ -32,7 +32,7 @@ var scaleColor = d3.scaleLinear()
 var suicideScale = svg.append("g")
     .attr("width", scaleWidth)
     .attr("height", scaleHeight)
-    .attr("transform", `translate(${width / 1.4 - height / 2}, ${height - 100})`);
+    .attr("transform", `translate(${width / 1.5 - height / 2}, ${height - 100})`);
 
 var barWidth = scaleWidth / 10;
 
@@ -52,7 +52,7 @@ const legendScale = d3.scaleLinear()
 
 const legendAxis = d3.axisBottom(legendScale)
     .ticks(5)
-    .tickSize(scaleHeight)
+    .tickSize(10)
     .tickFormat((d) => {
         if (d === 500000) {
             return "500k<";
@@ -63,15 +63,15 @@ const legendAxis = d3.axisBottom(legendScale)
 
 var legend = svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${width / 1.4 - height / 2}, ${height - 70})`);
+    .attr("transform", `translate(${width / 1.5 - height / 2}, ${height - 70})`);
 
 
 
 legend.call(legendAxis);
 
 var xAxisLabel = svg.append("text")
-    .attr("x", width - 200)
-    .attr("y", height - 60)
+    .attr("x", width / 1.1 - height / 2)
+    .attr("y", height - 70)
     .style("text-anchor", "middle")
     .text("Suicide rate");
 
@@ -80,13 +80,14 @@ function updateBarChart(countryName, suicideData) {
     const filteredData = suicideData.filter(item => item.country === countryName && item.suicides_no !== "");
     const years = filteredData.map(item => item.year);
     const suicideCounts = filteredData.map(item => parseInt(item.suicides_no));
+    const totalSuicides = d3.sum(suicideCounts);
 
 
     const barChartHeight = 500;
     const barChartWidth = 930;
 
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 60 };
+    const margin = { top: 20, right: 20, bottom: 30, left: 120 };
 
 
     const width = barChartWidth - margin.left - margin.right;
@@ -143,20 +144,23 @@ function updateBarChart(countryName, suicideData) {
         .attr("class", "y-axis-label")
         .attr("transform", "rotate(-90)")
         .attr("x", -50)
-        .attr("y", 0 - margin.left)
+        .attr("y", 0 - margin.left + 50)
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Suicide Count");
+
+    if (totalSuicides === 0) {
+        barChart.html("")
+
+    }
 
 }
 
 
 
 function updatePieChart(countryName, suicideData) {
-
     const countryFemaleData = suicideData.filter(d => d.country === countryName && d.sex === "female");
     const countryMaleData = suicideData.filter(d => d.country === countryName && d.sex === "male");
-
 
     const totalFemale = d3.sum(countryFemaleData, d => +d.suicides_no);
     const totalMale = d3.sum(countryMaleData, d => +d.suicides_no);
@@ -165,16 +169,10 @@ function updatePieChart(countryName, suicideData) {
     const totalFemalePercentage = (totalFemale / totalSuicides) * 100;
     const totalMalePercentage = (totalMale / totalSuicides) * 100;
 
-    if (totalSuicides === 0) {
-        return;
-    }
-
-
     const pieData = [
         { label: totalFemalePercentage.toFixed(2) + "%", value: totalFemale },
         { label: totalMalePercentage.toFixed(2) + "%", value: totalMale }
     ];
-
 
     const pieWidth = 300;
     const pieHeight = 300;
@@ -182,31 +180,28 @@ function updatePieChart(countryName, suicideData) {
     const pieX = pieWidth / 2;
     const pieY = pieHeight / 2;
 
-
     let pieSvg = d3.select("#piechart svg");
+
     if (pieSvg.empty()) {
         pieSvg = d3.select("#piechart")
             .append("svg")
             .attr("width", pieWidth)
             .attr("height", pieHeight)
-            .style("margin-left", "50px");
+            .style("margin-left", "300px")
+            .style("margin-top", "130px");
     } else {
         pieSvg.selectAll("*").remove();
     }
 
-
     const pieG = pieSvg.append("g")
         .attr("transform", `translate(${pieX}, ${pieY})`);
-
 
     const arc = d3.arc()
         .innerRadius(0)
         .outerRadius(pieRadius);
 
-
     const pie = d3.pie()
         .value(d => d.value);
-
 
     const arcs = pieG.selectAll("path")
         .data(pie(pieData))
@@ -216,7 +211,6 @@ function updatePieChart(countryName, suicideData) {
         .attr("fill", (d, i) => i === 0 ? "violet" : "cornflowerblue")
         .attr("stroke", "white")
         .attr("stroke-width", 2);
-
 
     arcs.append("title")
         .text(d => `${d.data.label}: ${d.data.value}`);
@@ -230,45 +224,74 @@ function updatePieChart(countryName, suicideData) {
         .style("text-anchor", "middle")
         .text(d => d.data.label);
 
+    let legend = d3.select("#piechart .legend");
 
-    var legend = d3.select("#piechart")
-        .append("svg")
-        .attr("class", "legend")
-        .attr("transform", `translate(${0}, ${0})`)
-        .style("margin-left", "50px");
+    if (legend.empty()) {
+        legend = d3.select("#piechart")
+            .append("svg")
+            .attr("class", "legend")
+            .attr("transform", `translate(${0}, ${0})`)
+            .style("margin-left", "50px");
 
-    var legendData = [
-        { label: "Female suicides", color: "violet" },
-        { label: "Male suicides", color: "cornflowerblue" }
-    ];
+        const legendData = [
+            { label: "Female suicides", color: "violet" },
+            { label: "Male suicides", color: "cornflowerblue" }
+        ];
 
-    var legendItem = legend.selectAll(".legend-item")
-        .data(legendData)
-        .enter()
-        .append("g")
-        .attr("class", "legend-item")
-        .attr("transform", function (d, i) { return `translate(0, ${i * 30})`; });
+        const legendItem = legend.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
-    legendItem.append("rect")
-        .attr("x", 0)
-        .attr("y", 0)
-        .attr("width", 20)
-        .attr("height", 20)
-        .attr("fill", function (d) { return d.color; });
+        legendItem.append("rect")
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", d => d.color);
 
-    legendItem.append("text")
-        .attr("x", 30)
-        .attr("y", 10)
-        .style("alignment-baseline", "middle")
-        .text(function (d) { return d.label; });
+        legendItem.append("text")
+            .attr("x", 20)
+            .attr("y", 12)
+            .text(d => d.label);
+    } else {
+        legend.selectAll(".legend-item").remove();
 
+        const legendData = [
+            { label: "Female suicides", color: "violet" },
+            { label: "Male suicides", color: "cornflowerblue" }
+        ];
+
+        const legendItem = legend.selectAll(".legend-item")
+            .data(legendData)
+            .enter()
+            .append("g")
+            .attr("class", "legend-item")
+            .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+
+        legendItem.append("rect")
+            .attr("width", 15)
+            .attr("height", 15)
+            .attr("fill", d => d.color);
+
+        legendItem.append("text")
+            .attr("x", 20)
+            .attr("y", 12)
+            .text(d => d.label);
+    }
+
+    if (totalSuicides === 0) {
+        pieG.html("");
+        legend.html("");
+    }
 
 }
 
 
 
+
 Promise.all([
-    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(response => response.json()),
+    fetch('world.json').then(response => response.json()),
     fetch('suicide.json').then(response => response.json())
 ]).then(([topoData, suicideData]) => {
 

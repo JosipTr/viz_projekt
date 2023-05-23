@@ -1,11 +1,10 @@
 body {
-  overflow: hidden;
-  background-color: lightblue;
+  background-color: darkgray;
 }
 
 #content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 #map {
@@ -13,6 +12,16 @@ body {
 }
 
 #charts {
+  display: flex;
+  flex-direction: row;
+  order: 2;
+}
+
+#barchart{
+  order: 1;
+}
+
+#piechart {
   order: 2;
 }
 
