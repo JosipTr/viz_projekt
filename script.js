@@ -83,8 +83,19 @@ function updateBarChart(countryName, suicideData) {
     const totalSuicides = d3.sum(suicideCounts);
 
 
+//     const suicidesByYear = {};
+//   filteredData.forEach(item => {
+//     const year = item.year;
+//     const suicides = parseInt(item.suicides_no);
+//     if (suicidesByYear[year]) {
+//       suicidesByYear[year] += suicides;
+//     } else {
+//       suicidesByYear[year] = suicides;
+//     }
+//   });
+
     const barChartHeight = 500;
-    const barChartWidth = 930;
+    const barChartWidth = 978;
 
 
     const margin = { top: 20, right: 20, bottom: 30, left: 120 };
@@ -291,11 +302,11 @@ function updatePieChart(countryName, suicideData) {
 
 
 Promise.all([
-    fetch('world.json').then(response => response.json()),
+    fetch('newWorldTopo.json').then(response => response.json()),
     fetch('suicide.json').then(response => response.json())
 ]).then(([topoData, suicideData]) => {
 
-    var countries = topojson.feature(topoData, topoData.objects.countries);
+    var countries = topojson.feature(topoData, topoData.objects.newWorld);
 
     const filteredData = suicideData.filter(data => data.suicides_no !== "");
 
