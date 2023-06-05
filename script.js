@@ -1,4 +1,4 @@
-var width = window.innerWidth - 40;
+var width = 900
 var height = window.innerHeight - 40;
 
 var scaleWidth = 400;
@@ -6,7 +6,7 @@ var scaleHeight = 30;
 
 var svg = d3.select("#content").append("svg").attr("width", width).attr("height", height)
 
-var projection = d3.geoMercator().center([0, 40]).scale(220).translate([width / 2, height / 2]);
+var projection = d3.geoMercator().center([0, 40]).scale(160).translate([width / 2, height / 2]);
 
 var path = d3.geoPath(projection);
 
@@ -32,7 +32,7 @@ var scaleColor = d3.scaleLinear()
 var suicideScale = svg.append("g")
     .attr("width", scaleWidth)
     .attr("height", scaleHeight)
-    .attr("transform", `translate(${width / 1.5 - height / 2}, ${height - 100})`);
+    .attr("transform", `translate(${width / 1.3 - height / 2}, ${height - 100})`);
 
 var barWidth = scaleWidth / 10;
 
@@ -63,16 +63,16 @@ const legendAxis = d3.axisBottom(legendScale)
 
 var legend = svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${width / 1.5 - height / 2}, ${height - 70})`);
+    .attr("transform", `translate(${width / 1.3 - height / 2}, ${height - 70})`);
 
 
 
 legend.call(legendAxis);
 
 var xAxisLabel = svg.append("text")
-    .attr("x", width / 1.1 - height / 2)
+    .attr("x", scaleWidth - 250)
     .attr("y", height - 70)
-    .style("text-anchor", "middle")
+    .style("text-anchor", "start")
     .text("Suicide rate");
 
 
@@ -81,18 +81,6 @@ function updateBarChart(countryName, suicideData) {
     const years = filteredData.map(item => item.year);
     const suicideCounts = filteredData.map(item => parseInt(item.suicides_no));
     const totalSuicides = d3.sum(suicideCounts);
-
-
-//     const suicidesByYear = {};
-//   filteredData.forEach(item => {
-//     const year = item.year;
-//     const suicides = parseInt(item.suicides_no);
-//     if (suicidesByYear[year]) {
-//       suicidesByYear[year] += suicides;
-//     } else {
-//       suicidesByYear[year] = suicides;
-//     }
-//   });
 
     const barChartHeight = 500;
     const barChartWidth = 978;
@@ -199,7 +187,7 @@ function updatePieChart(countryName, suicideData) {
             .attr("width", pieWidth)
             .attr("height", pieHeight)
             .style("margin-left", "300px")
-            .style("margin-top", "130px");
+            .style("margin-top", "30px");
     } else {
         pieSvg.selectAll("*").remove();
     }

@@ -1,10 +1,10 @@
 body {
-  background-color: darkgray;
+  background-color: lightsteelblue;
 }
 
 #content {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 #map {
@@ -13,7 +13,7 @@ body {
 
 #charts {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   order: 2;
 }
 
