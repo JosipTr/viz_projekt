@@ -1,0 +1,6 @@
+Potrebno je otvoriti projekt unutar Visual Studio Code i potrebno je instalirat Live Preview ekstenziju
+tako da se otiđe na Extension i upiše u tražilicu Live Preview i instaliramo ju.
+Kako bi pokrenuli index.html, unutar Visual Studio Code je potrebno otići u Explorer,
+desni klik na index.html i odabrati Show Preview.
+
+Ako je potrebno pokrenuti index.html u browser-u onda se može iskoristiti adresa koja se dobije pokretanjem Live Preview.
