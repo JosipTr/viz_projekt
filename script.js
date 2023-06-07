@@ -76,84 +76,85 @@ var xAxisLabel = svg.append("text")
     .text("Suicide rate");
 
 
-function updateBarChart(countryName, suicideData) {
-    const filteredData = suicideData.filter(item => item.country === countryName && item.suicides_no !== "");
-    const years = filteredData.map(item => item.year);
-    const suicideCounts = filteredData.map(item => parseInt(item.suicides_no));
-    const totalSuicides = d3.sum(suicideCounts);
-
-    const barChartHeight = 500;
-    const barChartWidth = 978;
-
-
-    const margin = { top: 20, right: 20, bottom: 30, left: 120 };
-
-
-    const width = barChartWidth - margin.left - margin.right;
-    const height = barChartHeight - margin.top - margin.bottom;
-
-
-    const xScale = d3.scaleBand()
-        .domain(years)
-        .range([0, width])
-        .padding(0.1);
-
-    const yScale = d3.scaleLinear()
-        .domain([0, d3.max(suicideCounts)])
-        .range([height, 0]);
-
-
-    const barChart = d3.select("#barchart")
-        .html("")
-        .append("svg")
-        .attr("width", barChartWidth)
-        .attr("height", barChartHeight)
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
-
-
-    barChart.selectAll(".bar")
-        .data(filteredData)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", d => xScale(d.year))
-        .attr("y", d => yScale(parseInt(d.suicides_no)))
-        .attr("width", xScale.bandwidth())
-        .attr("height", d => height - yScale(parseInt(d.suicides_no)))
-        .style("fill", "steelblue");
-
-
-    barChart.append("g")
-        .attr("transform", `translate(0, ${height})`)
-        .call(d3.axisBottom(xScale));
-
-
-    barChart.append("g")
-        .call(d3.axisLeft(yScale));
-
-    barChart.append("text")
-        .attr("class", "x-axis-label")
-        .attr("x", width - 30)
-        .attr("y", 480)
-        .style("text-anchor", "middle")
-        .text("Year");
-
-    barChart.append("text")
-        .attr("class", "y-axis-label")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -50)
-        .attr("y", 0 - margin.left + 50)
-        .attr("dy", "1em")
-        .style("text-anchor", "middle")
-        .text("Suicide Count");
-
-    if (totalSuicides === 0) {
-        barChart.html("")
-
-    }
-
-}
+    function updateBarChart(countryName, suicideData) {
+        const groupedData = Array.from(d3.group(suicideData, d => d.year + d.country));
+      
+        const filteredData = groupedData
+          .filter(group => group[0].includes(countryName))
+          .map(group => {
+            const year = group[1][0].year;
+            const suicides = d3.sum(group[1], d => parseInt(d.suicides_no));
+            return { year, suicides };
+          });
+      
+        const years = filteredData.map(item => item.year);
+        const suicideCounts = filteredData.map(item => item.suicides);
+        const totalSuicides = d3.sum(suicideCounts);
+      
+        const barChartHeight = 500;
+        const barChartWidth = 978;
+      
+        const margin = { top: 20, right: 20, bottom: 30, left: 120 };
+      
+        const width = barChartWidth - margin.left - margin.right;
+        const height = barChartHeight - margin.top - margin.bottom;
+      
+        const xScale = d3.scaleBand()
+          .domain(years)
+          .range([0, width])
+          .padding(0.1);
+      
+        const yScale = d3.scaleLinear()
+          .domain([0, d3.max(suicideCounts)])
+          .range([height, 0]);
+      
+        const barChart = d3.select("#barchart")
+          .html("")
+          .append("svg")
+          .attr("width", barChartWidth)
+          .attr("height", barChartHeight)
+          .append("g")
+          .attr("transform", `translate(${margin.left}, ${margin.top})`);
+      
+        barChart.selectAll(".bar")
+          .data(filteredData)
+          .enter()
+          .append("rect")
+          .attr("class", "bar")
+          .attr("x", d => xScale(d.year))
+          .attr("y", d => yScale(d.suicides))
+          .attr("width", xScale.bandwidth())
+          .attr("height", d => height - yScale(d.suicides))
+          .style("fill", "steelblue");
+      
+        barChart.append("g")
+          .attr("transform", `translate(0, ${height})`)
+          .call(d3.axisBottom(xScale));
+      
+        barChart.append("g")
+          .call(d3.axisLeft(yScale));
+      
+        barChart.append("text")
+          .attr("class", "x-axis-label")
+          .attr("x", width - 30)
+          .attr("y", 480)
+          .style("text-anchor", "middle")
+          .text("Year");
+      
+        barChart.append("text")
+          .attr("class", "y-axis-label")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -50)
+          .attr("y", 0 - margin.left + 50)
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .text("Suicide Count");
+      
+        if (totalSuicides === 0) {
+          barChart.html("");
+        }
+      }
+      
 
 
 
